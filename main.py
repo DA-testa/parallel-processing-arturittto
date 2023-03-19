@@ -1,31 +1,23 @@
-# python3
+#Artūrs Čubukovs 16.grupa 221RDB127
+from threading import Thread, Lock
 
-def parallel_processing(n, m, data):
-    output = []
-    # TODO: write the function for simulating parallel tasks, 
-    # create the output pairs
+def process_job(thread_idx, job_idx, job_time, start_time, results, lock):
+    time.sleep(job_time)
+    with lock:
+        results[job_idx] = (thread_idx, start_time)
 
-    return output
-
-def main():
-    # TODO: create input from keyboard
-    # input consists of two lines
-    # first line - n and m
-    # n - thread count 
-    # m - job count
-    n = 0
-    m = 0
-
-    # second line - data 
-    # data - contains m integers t(i) - the times in seconds it takes any thread to process i-th job
-    data = []
-
-    # TODO: create the function
-    result = parallel_processing(n,m,data)
-    
-    # TODO: print out the results, each pair in it's own line
-
-
-
-if __name__ == "__main__":
-    main()
+def assign_jobs(n, m, times):
+    results = [None] * m
+    start_times = [0] * n
+    lock = Lock()
+    threads = []
+    for i in range(m):
+        thread_idx = start_times.index(min(start_times))
+        thread = Thread(target=process_job, args=(thread_idx, i, times[i], start_times[thread_idx], results, lock))
+        threads.append(thread)
+        thread.start()
+        start_times[thread_idx] += times[i]
+    for thread in threads:
+        thread.join()
+    for result in results:
+        print(result[0], result[1])
